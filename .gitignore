@@ -1,0 +1,20 @@
+# pycharm
+.idea/
+.DS_Store
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+delopment_note/
+environment/
+
+# Django stuff:
+
+local_settings.py
+*.sqlite3
+media/
+
+# database migrattions
+*/migrations/*.py
+!*/migrations/__init__.py

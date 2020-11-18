@@ -1,0 +1,157 @@
+{% extends 'layout/basic.html' %}
+{% load static %}
+{% block title %}用户注册{% endblock %}
+{% block css %}
+        <link rel="stylesheet" href="{% static 'plugin/bootstrap/3.4.1.bootstrap.min.css' %}">
+   <script rel="script" src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.js"></script>
+    <script rel="script" src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/account.css' %}">
+    <style>
+    .error-msg{
+        color:red;
+        position:absolute;
+        font-size:13px;
+    }
+
+    #btnSendCode{
+
+    }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+
+    </div>
+      <div class="account">
+        <h1 class="text-center">用户注册</h1>
+        <form id="regForm" method="post" >
+        {% csrf_token %}
+              {% for field in forms %}
+                  {% if field.name == 'code' %}
+                       <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                      <div class="clearfix">
+                        <div class="col-md-6" style="padding-left:0">
+                            {{ field }}
+                            <span class="error-msg"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="button" value="点击获取验证码" id="btnSendCode" onclick="sendEmailCode()" class="btn btn-default"></div>
+                      </div>
+                  {% else %}
+                   <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        <span class="error-msg"></span>
+                   </div>
+                  {% endif %}
+           {% endfor %}
+
+            <button id="btnSubmit" type="button" style="margin-top:25px;margin-left:130px;" class="btn btn-primary" onclick="clickSubmitReg()">注 册</button>
+            <a href="{% url 'users:pswdlogin' %}" style="margin-top:-25px;margin-left:270px;display: block; ">已有账号?</a>
+        </form>
+
+    </div>
+l
+    <script>
+    //整个页面框架加载完成之后，会执行
+        function clickSubmitReg(){ //点击提交注册
+            //收集表单的数据
+            $(".error-msg").empty();
+            /*
+
+            username = $("#id_username").val();
+            email = $("#id_email").val();
+            mobile_phone = $("#id_mobile_phone").val();
+            password = $("#id_password").val();
+            confirm_password = $("#id_confirm_password").val();
+            code = $("#id_code").val(); // 方式1
+            */
+            $("#regForm").serialize();//收集表单所有数据 但是有些数据是不需要的就可以使用第一种方法
+
+            $.ajax({
+                url:"{% url 'users:register' %}",
+                type:"POST",
+                data:$("#regForm").serialize(),
+                dataType:"JSON",
+                success:function(res){
+                    console.log(res);
+                    if (res.status){
+                        location.href = {% url 'users:pswdlogin' %};
+                    }else{
+                        console.log(res.error)
+                         $.each(res.error,function(key,value){
+
+                             $("#id_" + key).next().text(value[0]);//
+                            })
+                    }
+                }
+            });
+
+
+    }
+
+            function sendEmailCode(){
+                sendEmailRemind();
+                $(".error-msg").empty();
+             // 将已经存在于error-msg的信息清空
+            // js命名规则是 驼峰式命名  example: mobilePhone
+           var email = $("#id_email").val();
+           var reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+           if (reg.test(email)){
+               $.ajax({
+                   url: "{% url 'users:sendcode' %}",
+                   async: true,
+                   dataType:"JSON",
+                   data: {email: email,
+                   "csrfmiddlewaretoken":'{{ csrf_token }}',
+                        tpl:"register",
+                   },
+                   type: "POST",
+                   success: function (res) { // 自动回调(执行)函数
+
+                       if (res.status){
+                           alert(res["msg"]);
+                           {#sendEmailRemind();#}
+                       }else{
+
+                           // 显示错误信息
+                            $.each(res.error,function(key,value){ //.each()循环信息 将参数1的dict信息给进行循环
+                                $("#id_"+key).next().text(value[0]);//
+                            })
+                       }
+                   }
+
+               });
+               return true;
+           }else{
+
+               $(".error-msg").text("您的邮箱不正确哦~");
+                return false;
+           }
+            }
+
+
+
+        function sendEmailRemind() {
+            var $btnSendCode = $("#btnSendCode");
+            $btnSendCode.prop("disabled", true);//禁用
+
+            var time = 60;
+            var remind = setInterval(function () {
+                $btnSendCode.val(time + "秒后重新发送");
+                time = time - 1;
+                if (time < 0) {
+                    clearInterval(remind);
+                    $btnSendCode.val("点击获取验证码").prop("disabled",false);
+                }
+            }, 1000)
+
+        }
+
+
+    </script>
+
+
+
+{% endblock %}
