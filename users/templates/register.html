@@ -31,12 +31,13 @@
                   {% if field.name == 'code' %}
                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                       <div class="clearfix">
-                        <div class="col-md-6" style="padding-left:0">
-                            {{ field }}
-                            <span class="error-msg"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="button" value="点击获取验证码" id="btnSendCode" onclick="sendEmailCode()" class="btn btn-default"></div>
+                            <div class="col-md-6" style="padding-left:0">
+                                {{ field }}
+                                <span class="error-msg"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="button" class="btn btn-default" value="点击获取验证码" id="btnSendCode" onclick="sendEmailCode()" >
+                            </div>
                       </div>
                   {% else %}
                    <div class="form-group">
@@ -52,7 +53,14 @@
         </form>
 
     </div>
-l
+
+
+
+
+{% endblock %}
+
+{% block js %}
+
     <script>
     //整个页面框架加载完成之后，会执行
         function clickSubmitReg(){ //点击提交注册
@@ -77,9 +85,9 @@ l
                 success:function(res){
                     console.log(res);
                     if (res.status){
-                        location.href = {% url 'users:pswdlogin' %};
+                        location.href = "{% url 'users:pswdlogin' %}";
                     }else{
-                        console.log(res.error)
+                        console.log(res.error);
                          $.each(res.error,function(key,value){
 
                              $("#id_" + key).next().text(value[0]);//
@@ -91,7 +99,7 @@ l
 
     }
 
-            function sendEmailCode(){
+            function sendEmailCode(){ // 点击获取发送邮箱验证码
                 sendEmailRemind();
                 $(".error-msg").empty();
              // 将已经存在于error-msg的信息清空
@@ -146,12 +154,9 @@ l
                     $btnSendCode.val("点击获取验证码").prop("disabled",false);
                 }
             }, 1000)
-
         }
 
 
+
     </script>
-
-
-
 {% endblock %}

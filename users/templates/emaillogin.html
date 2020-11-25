@@ -20,7 +20,7 @@
     </div>
       <div class="account">
         <h1 class="text-center">邮箱验证码登录</h1>
-        <form id="LogForm" method="post">
+        <form id="LogForm" >
         {% csrf_token %}
               {% for field in forms %}
                   {% if field.name == 'code' %}
@@ -28,8 +28,9 @@
                       <div class="clearfix">
                         <div class="col-md-6" style="padding-left:0">{{ field }}
                          <span class="error-msg"></span></div>
-
-                        <div class="col-md-6"><input type="button" value="点击获取验证码" id="btnSendCode" onclick="sendEmailCode()" class="btn btn-default"></div>
+                        <div class="col-md-6">
+                            <button  id="btnSendCode" onclick="sendEmailCode()" class="btn btn-default">点击获取验证码</button>
+                        </div>
                       </div>
                   {% else %}
                    <div class="form-group">
@@ -39,13 +40,16 @@
                    </div>
                   {% endif %}
            {% endfor %}
-            <button type="submit" style="margin-top:25px;" class="btn btn-primary" onclick="ClikeSubmitLogin">登 录</button>
+            <button type="button" style="margin-top:25px;" class="btn btn-primary" onclick="EmailLogin()">登 录</button>
             <a href="{% url 'users:pswdlogin' %}" style="margin-top:-25px;margin-left:270px;display: block; ">密码登录?</a>
         </form>
 
     </div>
 
-    <script>
+{% endblock %}
+
+{% block js %}
+        <script>
         function sendEmailCode(){
             sendEmailRemind();
             $(".error-msg").empty();
@@ -64,7 +68,7 @@
                    success: function (res) {
                         if (res.status){
                            alert(res["msg"]);
-                           {#sendEmailRemind();#}
+
                        }else{
 
                            // 显示错误信息
@@ -97,7 +101,7 @@
         }
 
 
-    function ClikeSubmitLogin(){
+    function EmailLogin(){
 
             $.ajax({
                 url:"{% url 'users:emaillogin' %}",
@@ -107,9 +111,9 @@
                 async:true,
                 success:function(res){
                     if (res.status){
-                        alert("登录成功!!")
+                        location.href="{% url 'index' %}"
                     }else{
-                        alert("登录失败")
+                        $("#id_code").next().text(res.error.code[0]);
                     }
                 }
             })
@@ -119,8 +123,4 @@
 
     </script>
 
-
-
 {% endblock %}
-
-

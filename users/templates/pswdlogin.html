@@ -40,7 +40,7 @@
                    </div>
                   {% endif %}
            {% endfor %}
-            <button type="button" style="margin-top:25px;" onclick="ClikeSubmitLogin()" class="btn btn-primary">登 录</button>
+            <button type="button" style="margin-top:25px;" onclick="PasswordLogin()" class="btn btn-primary">登 录</button>
             <a href="{% url 'users:emaillogin' %}" style="margin-top:-25px;margin-left:240px;display: block; ">验证码登录?</a>
         </form>
 
@@ -48,7 +48,7 @@
 
     <script>
 
-    function ClikeSubmitLogin(){
+    function PasswordLogin(){
             $(".error-msg").empty();
             $.ajax({
                 url:"{% url 'users:pswdlogin' %}",
@@ -58,11 +58,9 @@
                 async:true,
                 success:function(res){
                     if (res.status){
-
                         location.href = "{% url 'index' %}";
-
                     }else{
-                        console.log(res.error);
+
                         $.each(res.error,function(key,value){ //.each()循环信息 将参数1的dict信息给进行循环
                                 $("#id_"+key).next().text(value[0]);//
                             })

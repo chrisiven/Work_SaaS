@@ -1,7 +1,10 @@
 #coding:utf-8
+import datetime
+
 from django.shortcuts import render,HttpResponse,redirect
 # 用户账号管理的功能!
 # Create your views here.
+from proj.utils.tools import gen_order_id
 from django import forms
 from users import models
 from django.db.models import F,Q
@@ -9,7 +12,7 @@ from users.forms.account import RegisterForm,EmailLoginForm,SendEmailCodeForm,Lo
 from django.views import View
 from django.http import JsonResponse
 from users.utils.genRandomCodeImage import BigPainter
-
+from proj.models import Transaction,PricePolicy
 
 
 class Register(View): #注册
@@ -21,10 +24,22 @@ class Register(View): #注册
     def post(self,request):
         form = RegisterForm(data=request.POST)
         if form.is_valid():
-            print("已验证:",form.cleaned_data)
-            form.save()
+            # print("已验证:",form.cleaned_data)
+            instance = form.save()
+
+            price_object = PricePolicy.objects.filter(category=1,title="个人免费版")
+
+            Transaction.objects.create(
+                    status=1,
+                    order_id=gen_order_id(),
+                    user=instance,
+                    price_policy= price_object,
+                    count=0,
+                    start_datetime=datetime.datetime.now()
+
+            )
             return JsonResponse({"status":True})
-        print("出错")
+
         return JsonResponse({"status":False,"error":form.errors})
 
 
@@ -38,55 +53,45 @@ class EmailLogin(View): #邮箱验证码登录
 
     def post(self,request):
 
-
         form = EmailLoginForm(data=request.POST)
         if form.is_valid():
             #将用户信息放入session
             user_obj = form.cleaned_data.get("email","")
             request.session["user_id"] = user_obj.id
             request.session.set_expiry(60*60*24*14)
-            return JsonResponse({"type":"1","msg":"成功"})
-        return JsonResponse({"type":"0","msg":"失败","error":form.errors})
+            return JsonResponse({"status":True})
+        return JsonResponse({"status":False,"error":form.errors})
 
 
 
-class Login(View): #密码登录
+class PswdLogin(View): #密码登录
 
     def get(self,request):
-
         form  = LoginForm(request)
         return render(request,"pswdlogin.html",{"forms":form})
 
     def post(self,request):
-
         form = LoginForm(request,data=request.POST)
-        if form.is_valid():
 
+        if form.is_valid():
             user_email = form.cleaned_data.get("email")
             password = form.cleaned_data.get("password")
-
             user_obj = models.UserInfo.objects.filter(Q(email=user_email)|Q(mobile_phone=user_email)).filter(password=password).first()
 
-            # user_obj = models.UserInfo.objects.filter(email=user_email,password=password).first()
             if user_obj:
                 request.session["user_id"] = user_obj.id
                 request.session.set_expiry(60 * 60 * 24 * 14)
                 return JsonResponse({"status":True})
-
             form.add_error("email","用户名或者密码错误")
-        return JsonResponse({"status":False,"error":form.errors},content_type="application/json")
+        return JsonResponse({"status":False,"error":form.errors})
+
 
 
 def sendcode(request):
-
     form = SendEmailCodeForm(request,data=request.POST)
     if form.is_valid():
         return JsonResponse({"status":True,"msg":"验证码发送成功!",})
     return JsonResponse({"status":False,"error":form.errors})
-
-
-
-
 
 def verify_picture(request):
     from io import BytesIO
@@ -103,4 +108,4 @@ def verify_picture(request):
 
 def logout(request):
     request.session.flush()
-    return redirect("index")
+    return redirect("users:pswdlogin")

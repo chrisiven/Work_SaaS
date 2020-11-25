@@ -25,7 +25,7 @@ def oneHourMaxClickNumber(user:str): #一个小时内最大的点击数
                     return True
         except Exception as e:
             conn.set(user + "time", 1, ex=3600)  # 没有则创建,初始化为1
-
+            return True
 
 
 if __name__ == '__main__':

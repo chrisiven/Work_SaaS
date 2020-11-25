@@ -2,7 +2,7 @@
 from django import forms
 
 
-class Base_Bootstrap(forms.ModelForm):
+class Base_Bootstrap:
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
@@ -10,3 +10,5 @@ class Base_Bootstrap(forms.ModelForm):
             field.widget.attrs["class"] = "form-control"
             field.widget.attrs["placeholder"] = "请输入{}".format(field.label)
             # field.widget.attrs["value"] = "test"
+
+

@@ -8,8 +8,11 @@ __pycache__/
 
 delopment_note/
 environment/
+everyday-report/
+DelopmentThink/
 
 # Django stuff:
+
 
 local_settings.py
 *.sqlite3

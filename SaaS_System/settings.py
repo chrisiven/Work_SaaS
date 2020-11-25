@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "users"
+    "users",
+    "proj"
 ]
 
 MIDDLEWARE = [
@@ -57,7 +58,7 @@ ROOT_URLCONF = 'SaaS_System.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR,"templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,6 +72,18 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'SaaS_System.wsgi.application'
+
+WHITE_REGEX_URL_LIST = [
+    "/users/register/",
+    "/users/send_code/",
+    "/users/emaillogin/",
+    "/users/pswdlogin/",
+    "/users/verify_img/",
+    "index/",
+
+
+]
+
 
 
 # Database
