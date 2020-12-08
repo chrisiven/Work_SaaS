@@ -26,16 +26,6 @@ def upload_file(bucketName,file_object,key):
     )
 
     return "https://{}.cos.{}.myqcloud.com/{}".format(bucketName,settings.MY_REGION,key)
-# 高级上传接口
-# response = client.upload_file(
-#     Bucket='test-bucket-1257752450',
-#     LocalFilePath='国际歌.txt',
-#     Key='国际歌.txt', #上传之后的名称
-#     PartSize=1,
-#     MAXThread=10,
-#     EnableMD5=False
-# )
-# print(response["ETag"])
 
 
 class TenCent_COS:
@@ -43,8 +33,8 @@ class TenCent_COS:
 
     def __init__(self):
 
-        self.secret_id = "AKIDjGWVEFPUTBcstF7u1f3DApEOUJrhseiV"
-        self.secret_key ="gJo35wcOuAKD8mAI8Fdtte7KGwLkCSQ9"
+        self.secret_id = settings.TENCENT_SECRET_ID
+        self.secret_key =settings.TENCENT_SECRET_KEY
         self.region = "ap-nanjing"
         self.scheme = "https" # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
         self.token = None # 使用临时密钥需要传入 Token，默认为空，可不填
