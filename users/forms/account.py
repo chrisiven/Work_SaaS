@@ -4,17 +4,15 @@ from django import forms
 from users import models
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-from .base_bootstrap import Base_Bootstrap
+from forms.base_bootstrap import Base_Bootstrap
 from users.utils.redisTool import storageCode_Toredis,getCode_FromRedis
 from users.utils.sendCode import send_EmailCode
 from users.utils.timeManager import oneHourMaxClickNumber
 import random
-from django.db.models import Q
-from django.contrib.auth.hashers import make_password,check_password
+from django.contrib.auth.hashers import make_password
 
 
-
-class RegisterForm(Base_Bootstrap):
+class RegisterForm(Base_Bootstrap,forms.ModelForm):
 
 
     password = forms.CharField(label="密码",

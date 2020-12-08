@@ -14,11 +14,29 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.urls import path
+from django.urls import path,include
 
-from .views import project
-app_name = "proj"
+from .views import project,proj_manage,wiki
+app_name = "project"
 urlpatterns = [
+    # 项目列表
+    path("list/", project.ProjectView.as_view(), name="project_list"),
+    path("add_star/",project.addStar,name="addstar"),
+    path("cancel_star/",project.cancelStar,name="cancelStar"),
 
-    path("project/list/", project.project_list, name="project_list")
+    # 项目管理 完成项目才是关键
+    path("manage/<project_id>/dashboard/", proj_manage.dashboard, name="dashboard"),
+    path("manage/<project_id>/issues/", proj_manage.issues, name="issues"),
+    path("manage/<project_id>/statistics/", proj_manage.statistics, name="statistics"),
+    path("manage/<project_id>/file/", proj_manage.file, name="file"),
+
+    path("manage/<project_id>/wiki/", wiki.wiki, name="wiki"),
+    path("manage/<project_id>/wiki/upload/", wiki.wiki_upload, name="wiki_upload"),
+    path("manage/<project_id>/wiki/add/",wiki.Wiki_add.as_view(),name="wiki_add"),
+    path("manage/<project_id>/wiki/catalog/",wiki.wiki_catalog,name="wiki_catalog"),
+    path("manage/<project_id>/wiki/delete/<del_id>",wiki.wiki_delete,name="wiki_delete"),
+    path("manage/<project_id>/wiki/edit/<wiki_id>",wiki.EditWiki.as_view(),name="edit_wiki"),
+
+    path("manage/<project_id>/setting/", proj_manage.setting, name="setting"),
+
 ]

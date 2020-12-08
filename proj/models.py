@@ -1,7 +1,9 @@
 from django.db import models
 
 # Create your models here.
-import users
+
+
+from mdeditor.fields import MDTextField
 
 
 class PricePolicy(models.Model):# this is Teacher·wu create table
@@ -32,8 +34,8 @@ class  Transaction(models.Model):#交易记录表
     order_id = models.CharField(verbose_name="订单号",max_length=20,unique=True)
     user= models.ForeignKey("users.UserInfo",on_delete=models.CASCADE)
     price_policy = models.ForeignKey("PricePolicy",on_delete=models.CASCADE)
-    count = models.IntegerField(verbose_name="数量/年",help_text="0表示无限期")
-    price = models.IntegerField(verbose_name="实际支付价格")
+    count = models.IntegerField(verbose_name="数量/年",help_text="0表示无限期",default=0)
+    price = models.IntegerField(verbose_name="实际支付价格",default=0,help_text="0表示并未购买或者购买的已经过期")
     start_datetime = models.DateTimeField(verbose_name="服务开始时间",null=True,blank=True)
     end_datetime = models.DateTimeField(verbose_name="服务结束时间",null=True,blank=True)
     create_datetime = models.DateTimeField(verbose_name="创建时间",auto_now_add=True)
@@ -62,11 +64,15 @@ class Project(models.Model):
     join_count = models.SmallIntegerField(verbose_name="参与人数",default=1)
     creator = models.ForeignKey("users.UserInfo",on_delete=models.CASCADE,verbose_name="创建者")
     create_datetime = models.DateTimeField(verbose_name="创建时间",auto_now_add=True)
+    bucket = models.CharField(verbose_name="COS桶",max_length=128,default="")
+    region = models.CharField(verbose_name="cos区域",max_length=32,default="ap-nanjing")
+
 
     class Meta:
         db_table = "project"
         verbose_name = "项目表"
         verbose_name_plural = verbose_name
+
 
 class ProjectUser(models.Model):
     user = models.ForeignKey("users.UserInfo",on_delete=models.CASCADE)
@@ -80,6 +86,20 @@ class ProjectUser(models.Model):
         verbose_name_plural = verbose_name
 
 
+
+class Wiki(models.Model):
+
+    project = models.ForeignKey("Project",on_delete=models.CASCADE)
+    title = models.CharField(verbose_name="标题",max_length=32)
+    content = models.TextField(verbose_name="内容")
+    parent = models.ForeignKey(verbose_name="父文章",to="self",on_delete=models.CASCADE,null=True,blank=True,related_name="children")
+    depth = models.SmallIntegerField(verbose_name="深度",default=1)
+    class Meta:
+        db_table = "wiki"
+        verbose_name = "项目说明"
+        verbose_name_plural = verbose_name
+    def __str__(self):
+        return self.title
 # class PriceStrategy(models.Model): #this my create table
 #
 #     id = models.AutoField(primary_key = True,unique=True,verbose_name="策略id")

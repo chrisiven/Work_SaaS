@@ -15,7 +15,7 @@ from users.utils.genRandomCodeImage import BigPainter
 from proj.models import Transaction,PricePolicy
 
 
-class Register(View): #注册
+class RegisterView(View): #注册
 
     def get(self,request):
         forms = RegisterForm()
@@ -24,17 +24,37 @@ class Register(View): #注册
     def post(self,request):
         form = RegisterForm(data=request.POST)
         if form.is_valid():
-            # print("已验证:",form.cleaned_data)
-            instance = form.save()
+            price_object = PricePolicy.objects.filter(category=1,title="个人免费版").first()
 
-            price_object = PricePolicy.objects.filter(category=1,title="个人免费版")
+            username = form.cleaned_data.get("username")
+            email = form.cleaned_data.get("email")
+            phone = form.cleaned_data.get("mobile_phone")
+            pswd = form.cleaned_data.get("password")
+
+
+
+            user = models.UserInfo.objects.create(
+                username=username,
+                email=email,
+                password=pswd,
+                mobile_phone=phone,
+                price_policy=price_object,
+
+            )
+
+            # print("已验证:",form.cleaned_data)
+
+            # instance = form.save()
+
+
 
             Transaction.objects.create(
                     status=1,
                     order_id=gen_order_id(),
-                    user=instance,
-                    price_policy= price_object,
+                    user=user,
+                    price_policy_id= price_object.id,
                     count=0,
+                    price=0,
                     start_datetime=datetime.datetime.now()
 
             )
@@ -45,7 +65,7 @@ class Register(View): #注册
 
 
 
-class EmailLogin(View): #邮箱验证码登录
+class EmailLoginView(View): #邮箱验证码登录
 
     def get(self,request):
         forms = EmailLoginForm()
@@ -64,7 +84,7 @@ class EmailLogin(View): #邮箱验证码登录
 
 
 
-class PswdLogin(View): #密码登录
+class PswdLoginView(View): #密码登录
 
     def get(self,request):
         form  = LoginForm(request)

@@ -1,13 +1,253 @@
 {% extends "layout/manage.html" %}
 
+{% load static  %}
+
 
 {% block css %}
+    <style>
+     .color-radio input[type="radio"]{
+            opacity: 0;
+            display: none;
+     }
+
+    .proj-title{
+        width:200px;
+        height:120px;
+        padding:40px;
+        color: white;
+        font-size:20px;
+    }
+    .proj{
+        width:200px;
+        height:150px;
+        border:1px solid lightgray;
+
+        border-radius:4px;
+        margin-left:40px;
+        float:left;
+    }
+    .proj-info {
+        padding:5px;
+    }
+
+
+    .color-radio label{
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    .color-radio input[type="radio"]{
+        display: none;
+    }
+    .color-radio input[type="radio"]+.cycle{
+        display: inline-block;
+        height: 25px;
+        width: 25px;
+        border-radius: 50%;
+        border:2px solid #dddddd;
+    }
+
+    .color-radio input[type="radio"]:checked +.cycle{
+        border:1px solid black;
+    }
+
+    </style>
 {% endblock %}
 {% block content %}
     <div class="container-fluid">
-        <a class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>新建项目</a>
-
+    <div style="margin: 10px 0;;">
+        <a class="btn btn-primary" data-toggle="modal" data-target="#addModel"><i class="fa fa-plus" aria-hidden="true"></i>新建项目</a>
+</div>
     </div>
-    {{ request.tracer.price_policy.title }}
+    <div class="modal fade" id="addModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">创建项目</h4>
+      </div>
+      <div class="modal-body">
+          <form id="addForm">
+          {% csrf_token %}
+              {% for form in forms %}
+              <div class="form-group">
+                <label for="{{ form.id_for_label }}">{{ form.label }}</label>
+
+
+                {{ form }}
+
+
+                <span class="error-msg"></span>
+              </div>
+
+              {% endfor %}
+
+
+        </form>
+      </div>
+      <div class="modal-footer">
+{#        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>#}
+        <button type="button" id="btnSubmit" class="btn btn-primary">确 定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+        <div class="panel panel-default">
+      <div class="panel-heading"><i class="fa fa-star" aria-hidden="true"></i> 星标项目</div>
+      <div class="panel-body">
+
+        {% for item in project_dict.star %}
+         <div class="item proj" id="cancel-star">
+                <div class="proj-title" style="background-color: {{ item.get_color_display }};border-radius: 2px;">
+                    <a href="{% url 'project:dashboard' project_id=item.id %}"  style="text-decoration: none"><p class="text-center" style="color:white;">{{ item.name }}</p></a>
+                </div>
+
+                <div class="info proj-info" >
+                    <div style="float:left;margin-left:2px;" >
+                        <a href="#" title="取消星标?" id="{{ item.id }}" class="cancel-star" style="text-decoration: none" type="button">
+                           <i class="fa fa-star" aria-hidden="true"></i>
+                        </a>
+                        <span>{{ item.creator.username }}</span>
+                    </div>
+                    <div style="float:right;">
+                        <i class="fa fa-user-o" aria-hidden="true"></i><span> {{ item.join_count }}</span>
+                    </div>
+                </div>
+            </div>
+          {% endfor %}
+
+      </div>
+    </div>
+        <div class="panel panel-default">
+      <div class="panel-heading"><i class="fa fa-list" aria-hidden="true"></i> 我创建的</div>
+      <div class="panel-body">
+
+          {% for item in project_dict.my %}
+              <div class="item proj">
+                <div class="proj-title" style="background-color: {{ item.get_color_display }};border-radius: 2px;">
+                    <a href="{% url 'project:dashboard' project_id=item.id %}" style="text-decoration: none" ><p class="text-center" style="color:white;">{{ item.name }}</p></a>
+                </div>
+
+                <div class="info proj-info" >
+                    <div style="float:left;margin-left:2px;" >
+                        <a href="#" title="是否星标?" class="add-star" id="{{ item.id }}" style="text-decoration: none" type="button">
+                           <i class="fa fa-star-o" aria-hidden="true"></i>
+                        </a>
+                        <span>{{ item.creator.username }}</span>
+                    </div>
+                    <div style="float:right;">
+                        <i class="fa fa-user-o" aria-hidden="true"></i><span> {{ item.join_count }}</span>
+                    </div>
+                </div>
+            </div>
+          {% endfor %}
+
+      </div>
+    </div>
+
+          <div class="panel panel-default">
+      <div class="panel-heading"><i class="fa fa-users" aria-hidden="true"></i> 我参与的</div>
+      <div class="panel-body">
+
+        {% for item in project_dict.join %}
+            <div class="item proj">
+                <div class="proj-title" style="background-color: {{ item.get_color_display }};border-radius: 2px;" class="add-star" id="{{ item.id }}">
+                    <a href="{% url 'project:dashboard' project_id=item.id %}" style="text-decoration: none"><p class="text-center" style="color:white;">{{ item.name }}</p></a>
+                </div>
+
+                <div class="info proj-info" >
+                    <div style="float:left;margin-left:2px;" >
+                        <a href="#" title="是否星标?" class="add-star" id="{{ item.id }}" style="text-decoration: none" type="button">
+                           <i class="fa fa-star-o" aria-hidden="true"></i>
+                        </a>
+                        <span>{{ item.creator.username }}</span>
+                    </div>
+                    <div style="float:right;">
+                        <i class="fa fa-user-o" aria-hidden="true"></i><span> {{ item.join_count }}</span>
+                    </div>
+                </div>
+            </div>
+          {% endfor %}
+
+      </div>
+    </div>
+</div>
+
 {% endblock %}
 
+{% block js %}
+
+    <script>
+        $(function(){
+            bindSubmit();
+            addStar();
+            cancelStar();
+        });
+
+        function bindSubmit(){
+            $("#btnSubmit").click(function(){
+                $.ajax({
+                    url:"{% url 'project:project_list' %}",
+                    data:$("#addForm").serialize(),
+                    type:"POST",
+                    dataType:"JSON",
+                    async:true,
+                    success:function(res){
+                        if(res.status){
+                            location.reload(); //刷新
+                        }else{
+                            $.each(res.error,function(key,value){ //.each()循环信息 将参数1的dict信息给进行循环
+                                    $("#id_"+key).next().text(value[0]);//
+                                })
+                        }
+
+                    }
+                })
+            });
+        }
+
+
+        function addStar(){
+        //        添加星标
+            $(".add-star").click(function(){
+                $.ajax({
+                url:"{% url 'project:addstar' %}",
+                data:{addstar:$(this).attr("id"),
+                    "csrfmiddlewaretoken":"{{ csrf_token }}"
+                },
+                dateType: "JSON",
+                type:"POST",
+                success:function(res){
+                    if (res){
+                        location.reload();
+                    }
+                }
+            })
+        })
+
+        }
+
+        function cancelStar(){
+        //   取消星标
+            $(".cancel-star").click(function(){
+                    $.ajax({
+                    url:"{% url 'project:cancelStar' %}",
+                    data:{cancelstar:$(this).attr("id"),
+                        "csrfmiddlewaretoken":"{{ csrf_token }}"
+                    },
+                    dateType: "JSON",
+                    type:"POST",
+                    success:function(res){
+                        if (res){
+                            location.reload();
+                        }
+                    }
+                })
+            })
+
+        }
+    </script>
+
+{% endblock %}

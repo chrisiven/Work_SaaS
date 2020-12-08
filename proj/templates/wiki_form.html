@@ -1,0 +1,158 @@
+{% extends 'layout/manage.html' %}
+{% load static  %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'plugin/editor.md/css/editormd.min.css' %}">
+    <style>
+
+    .title-list{
+        border-right: 1px solid #dddddd;
+        min-height: 500px;
+    }
+    .panel-default .panel-heading{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    .content {
+         border-left: 1px solid #dddddd;
+        min-height: 600px;
+        margin-left:-1px;
+    }
+     .title-list ul{
+        padding-left: 15px;
+    }
+    .title-list ul a{
+        display: block;
+        padding:5px 0;
+    }
+    {#.panel-body{#}
+    {#    padding:0;#}
+
+    </style>
+{% endblock %}
+{% block content %}
+
+
+    <div class="container-fluid">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+              <div>
+                  <i class="fa fa-book" aria-hidden="true"></i> wiki文档
+              </div>
+             <div class="function">
+                <a href="{% url 'project:wiki_add' project_id=request.tracer.project.id %}" type="button" class="btn btn-success btn-xs"><i class="fa fa-plus-circle"></i> 新建</a>
+            </div>
+          </div>
+
+            <div class="panel-body">
+                <div class="col-sm-3 title-list">
+                    <ul id="catalog">
+
+                    </ul>
+                </div>
+
+                <div class="col-sm-9 content">
+                <form id="WikiForm" method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {% if field.name == "content" %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                <div id="content_editor">
+                                    {{ field }}
+                                </div>
+                            <span class="error-msg">{{ field.errors.0 }}</span>
+                            </div>
+                        {% else %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                            <span class="error-msg">{{ field.errors.0 }}</span>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                        <button type="submit" class="btn btn-primary" >提 交</button>
+                </form>
+
+                </div>
+
+    </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'plugin/editor.md/editormd.min.js' %}"></script>
+    <script>
+     var WIKI_DETAIL_URL = "{% url 'project:wiki' project_id=request.tracer.project.id %}";
+    $(function () {
+        initCatalog();
+        initEditorMD();
+    });
+    // 初始化markdown编辑器（textarea转换为编辑器）
+    function initEditorMD(){
+        var editor = editormd("content_editor",{
+            width:"100%",
+            height:500,
+            path:"{% static 'plugin/editor.md/lib/' %}",
+            imageUpload:true,//开启上传图片的操作
+            imageFormats:["jpg","png","jpeg","gif"],
+            imageUploadURL:"{% url 'project:wiki_upload' project_id=request.tracer.project.id %}"
+
+        })
+    }
+    function addWiki(){
+         $.ajax({
+             url:'{% url "project:wiki_add" project_id=request.tracer.project.id  %}',
+             data:{wikiform:$("#WikiForm").serialize(),csrfmiddlewaretoken:"{{ csrf_token }}"},
+             async:true,
+             type:"POST",
+             dateType:"JSON",
+             success:function(res){
+                 if (res){
+                     location.href="{% url 'project:wiki' project_id=request.tracer.project.id %}"
+                 }else{
+                     $.each(res.error,function(key,value){ //.each()循环信息 将参数1的dict信息给进行循环
+                                $("#id_"+key).next().text(value[0]);//
+                            })
+                     }
+                 }
+
+
+         })
+    }
+
+    function initCatalog(){
+            $.ajax({
+                url:"{% url 'project:wiki_catalog' project_id=request.tracer.project.id %}",
+                type:"GET",
+                dataType:"JSON",
+                success:function (res) {
+
+                    if (res){
+                        $.each(res.data,function(index,item){
+                            var href = WIKI_DETAIL_URL+"?wiki_id="+item.id;
+                            var li = $("<li>").attr("id","id_"+item.id).append($("<a>").text(item.title).attr("href",href)).append($("<ul>"));
+                         if (!item.parent_id){
+
+                             $("#catalog").append(li);
+                         }else{
+
+                             $("#id_"+item.parent_id).children("ul").append(li);
+                         }
+
+                        });
+                    }else{
+                        alert("初始化目录失败")
+                    }
+                }
+            })
+        }
+    </script>
+
+
+{% endblock %}

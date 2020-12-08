@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "users",
-    "proj"
+    "proj",
+
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "users.middleware.auth.AuthMiddleware",
+    # "users.middleware.ceshi_midd.Ceshi_midd" 测试使用
 
 ]
 
@@ -84,8 +86,10 @@ WHITE_REGEX_URL_LIST = [
 
 ]
 
-
-
+# TENCENT COS KEY AND ID
+TENCENT_SECRET_ID = ""
+TENCENT_SECRET_KEY = ""
+TENCENT_SECRET_NUMBER = ""
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -127,6 +131,9 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.MD5PasswordHasher',
     'django.contrib.auth.hashers.CryptPasswordHasher',
 )
+# mdeditor: add frame settings for django3.0+ like this：
+# X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 
 
 # Internationalization
@@ -134,7 +141,7 @@ PASSWORD_HASHERS = (
 
 LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -147,6 +154,9 @@ MAX_VERIFYCODE_COUNT = 5
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_ROOT = os.path.join(BASE_DIR,"uploads")
+MEDIA_URL = "/media/"
+
 REDIS_HOST = ""
 REDIS_PASSWORD = ""
 REDIS_DB = ""
